@@ -27,7 +27,8 @@ namespace ECommerceAPI.Persistence.Repositories
         public async Task<T> GetSingleAsync(Expression<Func<T, bool>> method)
             =>await Table.FirstOrDefaultAsync(method);
         public async Task<T> GetByIdAsync(string id)
-            => await Table.FirstOrDefaultAsync(data => data.Id ==Guid.Parse(id));
+            => await Table.FindAsync(Guid.Parse(id));
+            //=> await Table.FirstOrDefaultAsync(data => data.Id ==Guid.Parse(id));
 
         //Generic çalıştığımız için elde bir Id yok. bu yüzden FirstOrDefoult vs. kullanamıyoruz.
         //Bu tarz çalışmalarda yapılması gereken iki yol vardır. ya Reflection'a gireceksin. Ya da aşağıdaki gibi Marker Patern'a (İşaretleyici Patern) uygun bir alt yapıda çalışma sergilemen gerekir. Bu interfacenin alacağı T Tipini teee interfacen bu yana BaseEntity olarak tasarlarsak o zmn firtOrDefaul kullanabiliriz.
