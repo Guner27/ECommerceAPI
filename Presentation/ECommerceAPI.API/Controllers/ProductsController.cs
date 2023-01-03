@@ -12,29 +12,34 @@ namespace ECommerceAPI.API.Controllers
     {
         readonly private IProductReadRepository _productReadRepository;
         readonly private IProductWriteRepository _productWriteRepository;
-            
-        public ProductsController(IProductWriteRepository productWriteRepository, IProductReadRepository productReadRepository)
+
+        readonly private IOrderWriteRepository _orderWriteRepository;
+        readonly private IOrderReadRepository _orderReadRepository; 
+
+        readonly private ICustomerWriteRepository _customerWriteRepository;
+        public ProductsController(
+            IProductWriteRepository productWriteRepository,
+            IProductReadRepository productReadRepository,
+            IOrderWriteRepository orderWriteRepository,
+            ICustomerWriteRepository customerWriteRepository,
+            IOrderReadRepository orderReadRepository)
         {
             _productWriteRepository = productWriteRepository;
             _productReadRepository = productReadRepository;
+            _orderWriteRepository = orderWriteRepository;
+            _customerWriteRepository = customerWriteRepository;
+            _orderReadRepository = orderReadRepository;
         }
         [HttpGet]
-        public async Task Get() {
-            await _productWriteRepository.AddRangeAsync(new()
-            {
-                new() {Id = Guid.NewGuid(), Name = "Product 4", Price = 400,CreatedDate =DateTime.UtcNow, Stock= 40 },
-                new() {Id = Guid.NewGuid(), Name = "Product 5", Price = 500,CreatedDate =DateTime.UtcNow, Stock= 50 },
-                new() {Id = Guid.NewGuid(), Name = "Product 6", Price = 600,CreatedDate =DateTime.UtcNow, Stock= 60 },
-            });
-            await _productWriteRepository.SaveAsync();
-
-        }
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        public async Task Get()
         {
-           Product product=  await _productReadRepository.GetByIdAsync(id);
-            return Ok(product);
+            Guid customerId = Guid.NewGuid();
+            Order order = await _orderReadRepository.GetByIdAsync("87af892e-8f6a-4572-816f-7e93e0879e08");
+            order.Address="İstanbul Çengelköy";
+            
+            await _orderWriteRepository.SaveAsync();
         }
+
 
     }
 }
