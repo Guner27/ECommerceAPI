@@ -31,13 +31,9 @@ namespace ECommerceAPI.API.Controllers
             _orderReadRepository = orderReadRepository;
         }
         [HttpGet]
-        public async Task Get()
+        public async Task<ActionResult> Get()
         {
-            Guid customerId = Guid.NewGuid();
-            Order order = await _orderReadRepository.GetByIdAsync("87af892e-8f6a-4572-816f-7e93e0879e08");
-            order.Address="İstanbul Çengelköy";
-            
-            await _orderWriteRepository.SaveAsync();
+            return Ok("Merhaba Güner");
         }
 
 
