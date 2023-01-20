@@ -1,4 +1,6 @@
+using ECommerceAPI.Application.Validators.Products;
 using ECommerceAPI.Persistence;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +9,8 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
     policy.WithOrigins("http://localhost:4200", "https://localhost:4200").AllowAnyHeader().AllowAnyMethod()
 ));
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()   //Sadece bir tane Validator sýnýfý tanýmlamak yeterli.
+    .AddFluentValidation(configuration => configuration.RegisterValidatorsFromAssemblyContaining<CreateProductValidator>());
  
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
