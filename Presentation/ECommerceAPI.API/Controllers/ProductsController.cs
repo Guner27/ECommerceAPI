@@ -1,5 +1,6 @@
 ﻿using ECommerceAPI.Application.Abstractions;
 using ECommerceAPI.Application.Repositories;
+using ECommerceAPI.Application.RequestParameters;
 using ECommerceAPI.Application.ViewModels.Products;
 using ECommerceAPI.Domain.Entities;
 using Microsoft.AspNetCore.Http;
@@ -25,14 +26,31 @@ namespace ECommerceAPI.API.Controllers
 
         #region Custom HttpClient Servisi Test kodları
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] Pagination pagination)
         {
-            return Ok(_productReadRepository.GetAll(false));
+            var totalCount = _productReadRepository.GetAll(false).Count();
+            var products = _productReadRepository.GetAll(false).Skip(pagination.Page * pagination.Size) //Skip : Atla demek, mesela 3. sayfayı görüntüleyecekse 30 ürün sonrasına atla.
+                .Take(pagination.Size)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Name,
+                    p.Stock,
+                    p.Price,
+                    p.CreatedDate,
+                    p.UpdatedDate
+                });
+
+            return Ok(new
+            {
+                totalCount,
+                products
+            });
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(string id)
         {
-            return Ok(_productReadRepository.GetByIdAsync(id,false));
+            return Ok(_productReadRepository.GetByIdAsync(id, false));
         }
 
         [HttpPost]
@@ -53,8 +71,8 @@ namespace ECommerceAPI.API.Controllers
         {
             Product product = await _productReadRepository.GetByIdAsync(model.Id);
             product.Stock = model.Stock;
-            product.Name= model.Name;
-            product.Price= model.Price;
+            product.Name = model.Name;
+            product.Price = model.Price;
             await _productWriteRepository.SaveAsync();
             return Ok();
         }
