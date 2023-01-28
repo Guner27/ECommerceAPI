@@ -11,7 +11,7 @@ namespace ECommerceAPI.Application.Services
         /// <param name="files">Requestden gelen dosyaları ver bana</param>
         /// <returns></returns>
         Task<List<(string fileName, string path)>> UploadAsync(string path, IFormFileCollection files);
-        Task<string> FileRenameAsync(string fileName);
+        
         Task<bool> CopyFileAsync(string path, IFormFile file);
     }
 }
