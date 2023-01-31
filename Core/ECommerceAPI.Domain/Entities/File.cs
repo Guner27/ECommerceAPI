@@ -12,6 +12,7 @@ namespace ECommerceAPI.Domain.Entities
     {
         public string FileName { get; set; }
         public string Path { get; set; }
+        public string Storage { get; set; }
 
         [NotMapped]     //UpdateDate kolonunu migrade ederken ez ve ekleme
         public override DateTime UpdatedDate { get => base.UpdatedDate; set => base.UpdatedDate = value; }
