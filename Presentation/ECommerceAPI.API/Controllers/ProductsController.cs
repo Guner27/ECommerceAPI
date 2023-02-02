@@ -1,10 +1,13 @@
 ﻿using ECommerceAPI.Application.Abstractions;
 using ECommerceAPI.Application.Abstractions.Storage;
+using ECommerceAPI.Application.Features.Commands.CreateProduct;
+using ECommerceAPI.Application.Features.Queries.GetAllProduct;
 using ECommerceAPI.Application.Repositories;
 using ECommerceAPI.Application.RequestParameters;
 
 using ECommerceAPI.Application.ViewModels.Products;
 using ECommerceAPI.Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -30,6 +33,9 @@ namespace ECommerceAPI.API.Controllers
         readonly IInvoiceFileWriteRepository _invoiceFileWriteRepository;
         readonly IStorageService _storageService;
 
+
+        readonly IMediator _mediator;
+
         public ProductsController(
             IProductWriteRepository productWriteRepository,
             IProductReadRepository productReadRepository,
@@ -41,7 +47,8 @@ namespace ECommerceAPI.API.Controllers
             IProductImageFileReadRepository productImageFileReadRepository,
             IInvoiceFileReadRepository invoiceFileReadRepository,
             IInvoiceFileWriteRepository invoiceFileWriteRepository,
-            IStorageService storageService)
+            IStorageService storageService,
+            IMediator mediator)
         {
             _productWriteRepository = productWriteRepository;
             _productReadRepository = productReadRepository;
@@ -54,30 +61,15 @@ namespace ECommerceAPI.API.Controllers
             _invoiceFileReadRepository = invoiceFileReadRepository;
             _invoiceFileWriteRepository = invoiceFileWriteRepository;
             _storageService = storageService;
+            _mediator = mediator;
         }
 
         #region Custom HttpClient Servisi Test kodları
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] Pagination pagination)
+        public async Task<IActionResult> Get([FromQuery] GetAllProductQueryRequest getAllProductQueryRequest)
         {
-            var totalCount = _productReadRepository.GetAll(false).Count();
-            var products = _productReadRepository.GetAll(false).Skip(pagination.Page * pagination.Size) //Skip : Atla demek, mesela 3. sayfayı görüntüleyecekse 30 ürün sonrasına atla.
-                .Take(pagination.Size)
-                .Select(p => new
-                {
-                    p.Id,
-                    p.Name,
-                    p.Stock,
-                    p.Price,
-                    p.CreatedDate,
-                    p.UpdatedDate
-                });
-
-            return Ok(new
-            {
-                totalCount,
-                products
-            });
+            GetAllProductQueryResponse response = await _mediator.Send(getAllProductQueryRequest);
+            return Ok(response);
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(string id)
@@ -86,15 +78,9 @@ namespace ECommerceAPI.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(VM_Create_Product model)
+        public async Task<IActionResult> Post(CreateProductCRequest cRequest)
         {
-            await _productWriteRepository.AddAsync(new()
-            {
-                Name = model.Name,
-                Price = model.Price,
-                Stock = model.Stock
-            });
-            await _productWriteRepository.SaveAsync();
+            CreateProductCResponse response = await _mediator.Send(cRequest);
             return StatusCode((int)HttpStatusCode.Created);
         }
 
@@ -167,11 +153,11 @@ namespace ECommerceAPI.API.Controllers
         }
 
         [HttpDelete("[action]/{id}")]
-        public async Task<IActionResult> DeleteProductImage(string id,string imageId)
+        public async Task<IActionResult> DeleteProductImage(string id, string imageId)
         {
             Product? product = await _productReadRepository.Table.Include(p => p.ProductImageFiles)
                  .FirstOrDefaultAsync(p => p.Id == Guid.Parse(id));
-           ProductImageFile productImageFile = product.ProductImageFiles.FirstOrDefault(p=>p.Id ==Guid.Parse(imageId));
+            ProductImageFile productImageFile = product.ProductImageFiles.FirstOrDefault(p => p.Id == Guid.Parse(imageId));
             product.ProductImageFiles.Remove(productImageFile);
             await _productWriteRepository.SaveAsync();
             return Ok();

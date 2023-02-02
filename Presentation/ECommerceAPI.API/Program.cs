@@ -1,3 +1,4 @@
+using ECommerceAPI.Application;
 using ECommerceAPI.Application.Validators.Products;
 using ECommerceAPI.Infrastructure;
 using ECommerceAPI.Infrastructure.Filters;
@@ -9,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddPersistenceServices();
 builder.Services.AddInfrastructureServices();
+builder.Services.AddApplicationServices();
 
 //Bundan sonra hangi storage servisi ile çalýþacaksan o  storage servisinin adýný LocalStorage yerine yaz ve o servis çalýþsýn.
 builder.Services.AddStorage<LocalStorage>();
