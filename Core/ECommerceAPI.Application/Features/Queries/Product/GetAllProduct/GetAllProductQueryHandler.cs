@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ECommerceAPI.Application.Features.Queries.GetAllProduct
+namespace ECommerceAPI.Application.Features.Queries.Product.GetAllProduct
 {
     public class GetAllProductQueryHandler : IRequestHandler<GetAllProductQueryRequest, GetAllProductQueryResponse>
     {
@@ -16,7 +16,7 @@ namespace ECommerceAPI.Application.Features.Queries.GetAllProduct
         public GetAllProductQueryHandler(IProductReadRepository productReadRepository)
         {
             _productReadRepository = productReadRepository;
-        
+
         }
         public async Task<GetAllProductQueryResponse> Handle(GetAllProductQueryRequest request, CancellationToken cancellationToken)
         {
@@ -30,8 +30,8 @@ namespace ECommerceAPI.Application.Features.Queries.GetAllProduct
                 p.Stock,
                 p.Price,
                 p.CreatedDate,
-                    p.UpdatedDate
-                }).ToList();
+                p.UpdatedDate
+            }).ToList();
             return new()
             {
                 Products = products,
