@@ -12,6 +12,7 @@ using ECommerceAPI.Persistence.Contexts;
 using Microsoft.Extensions.Configuration;
 using ECommerceAPI.Application.Repositories;
 using ECommerceAPI.Persistence.Repositories;
+using ECommerceAPI.Domain.Entities.Identity;
 
 namespace ECommerceAPI.Persistence
 {
@@ -20,6 +21,16 @@ namespace ECommerceAPI.Persistence
 
         public static void AddPersistenceServices(this IServiceCollection services)
         {
+            services.AddIdentity<AppUser, AppRole>(options =>
+            {
+                //Kullanıcı kayıttaki yüksek güvenlik ayarlarını değiştirdik. Test aşamasında olduğumuz için.
+                options.Password.RequiredLength = 3;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+            }).AddEntityFrameworkStores<ECommerceAPIDbContext>();
+
 
 
             services.AddDbContext<ECommerceAPIDbContext>(options => options.UseNpgsql(Configuration.ConnectionString));
